@@ -123,7 +123,7 @@ public class DMLLearn {
             //指定列的数据全部删掉，不管有多少versions,后可接时间戳，表示小于等于时间撮的版本全部干掉
             delete.addColumns(Bytes.toBytes(columnFamily),Bytes.toBytes(column));
 
-            //只干掉最新版本(version)最大的，若指定了时间戳,只删除那个时间撮下的值
+            //只干掉最新版本(version)最大的，若指定了时间戳,只删除那个时间撮的值
             //此方法打DELETE标识，不会删除数据，只会打标识,在versions设置为１时，若缓存里面还有旧值（未刷写到ｈｄｆｓ），则会出现旧的值"复活"的现象
 //            delete.addColumn(Bytes.toBytes(columnFamily),Bytes.toBytes(column),1603466525211L);
 
