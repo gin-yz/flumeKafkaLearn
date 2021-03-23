@@ -16,12 +16,13 @@ public class CounterInterceptor implements ProducerInterceptor<String, String>{
         return record;
     }
 
-    //往RecordAccumulator发送后调用该方法
+    //往RecordAccumulator发送后调用该方法,此时已经序列化,注意这个是每发送的消息都会遍历，而不是等积累后一起发送至RecordAccumulator才调用．
     @Override
     public void onAcknowledgement(RecordMetadata metadata, Exception exception) {
 // 统计成功和失败的次数
         if (exception == null) {
             successCounter++;
+            System.out.println("发送至RecordAccumulator的ｍｅｔｄａｔａ:"+metadata.toString());
         } else {
             errorCounter++;
         }

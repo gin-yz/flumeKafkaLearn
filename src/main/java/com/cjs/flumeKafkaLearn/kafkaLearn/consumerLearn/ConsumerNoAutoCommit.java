@@ -1,16 +1,15 @@
 /*
-* 关闭offset自动提交
-* offset未增加，一直打印ｏｆｆｓｅｔ之后的值
-* */
+ * 关闭offset自动提交
+ * offset未增加，一直打印ｏｆｆｓｅｔ之后的值
+ * */
 
 package com.cjs.flumeKafkaLearn.kafkaLearn.consumerLearn;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 
 public class ConsumerNoAutoCommit {
@@ -30,15 +29,28 @@ public class ConsumerNoAutoCommit {
         //重置消费者的ｏｆｆｓｅｔ
         //显示条件：１）换组(offset变成新的了)，２）offset过了期限消失了
         //默认latest
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,"earliest");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 
         //指定不存在的主题也可以
-        consumer.subscribe(Arrays.asList("first","second"));
+        consumer.subscribe(Arrays.asList("first", "second"));
+//        consumer.seek();
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(100);
             for (ConsumerRecord<String, String> record : records)
-                System.out.printf("offset = %d, key = %s, value = %s, partition = %s%n", record.offset(), record.key(), record.value(),record.partition());
+                System.out.printf("offset = %d, key = %s, value = %s, partition = %s%n", record.offset(), record.key(), record.value(), record.partition());
+            //同步提交，会一直阻塞在这直到提交完成
+//            consumer.commitSync();
+            //异步提交，提交完成后会回调方法,不停的提交
+//            consumer.commitAsync(new OffsetCommitCallback() {
+//                @Override
+//                public void onComplete(Map<TopicPartition, OffsetAndMetadata> offsets, Exception exception) {
+//                    if (exception != null) {
+//                        System.err.println("Commit failed for" + offsets);
+//                    }
+//                }
+//            });
+
         }
     }
 }

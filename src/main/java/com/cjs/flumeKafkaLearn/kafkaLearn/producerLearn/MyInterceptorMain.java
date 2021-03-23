@@ -3,10 +3,8 @@ package com.cjs.flumeKafkaLearn.kafkaLearn.producerLearn;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+
+import org.apache.kafka.clients.producer.*;
 
 
 public class MyInterceptorMain {
@@ -23,7 +21,7 @@ public class MyInterceptorMain {
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 // 2 构建拦截链
         List<String> interceptors = new ArrayList<>();
-        //写的拦截器类全类名
+        //写的拦截器类全类名,会按照顺序同时启动，因此要确保线程安全
         interceptors.add("com.cjs.flumeKafkaLearn.kafkaLearn.producerLearn.TimeInterceptor");
         interceptors.add("com.cjs.flumeKafkaLearn.kafkaLearn.producerLearn.CounterInterceptor");
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, interceptors);
@@ -32,7 +30,14 @@ public class MyInterceptorMain {
 // 3 发送消息
         for (int i = 0; i < 10; i++) {
             ProducerRecord<String, String> record = new ProducerRecord<>(topic, "message" + i);
-            producer.send(record);
+            producer.send(record, new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    if (e==null){
+                        System.out.println("回调的metadata:"+recordMetadata.toString());
+                    }
+                }
+            });
         }
 // 4 一定要关闭 producer，这样才会调用 interceptor 的 close 方法
         producer.close();

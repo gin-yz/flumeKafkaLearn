@@ -10,11 +10,13 @@ import java.util.Map;
 public class MyPartitions implements Partitioner {
     @Override
     public int partition(String s, Object o, byte[] bytes, Object o1, byte[] bytes1, Cluster cluster) {
-//        List<PartitionInfo> partitionInfos = cluster.availablePartitionsForTopic(s);
+
+        List<PartitionInfo> partitionInfos = cluster.availablePartitionsForTopic(s);
 
         Integer partitionCountForTopic = cluster.partitionCountForTopic(s);
 
         System.out.println(partitionCountForTopic);
+        System.out.println(partitionInfos);
 
         //写业务逻辑，这里统一到1分区，做测试用
         return 1;
